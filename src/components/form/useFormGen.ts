@@ -57,7 +57,7 @@ export function useFormGen(props: UseFormGeneratorProps): UseFormGeneratorReturn
         setModel((prev) => {
             const newModel = cloneObject(prev);
             set(newModel, path, value);
-            return prev;
+            return newModel;
         });
     }, [model, state])
 
