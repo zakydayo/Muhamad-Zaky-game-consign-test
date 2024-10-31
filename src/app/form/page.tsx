@@ -6,6 +6,11 @@ import {FormGenerator} from "@/components/form/FormGenerator";
 import {Button} from "@/components/ui/button";
 
 export default function FormPage() {
+    const initialModel: FormModel = {
+        first_name: "",
+        last_name: ""
+    };
+
     const schema = {
         name: "simple-form",
         definitions: [
@@ -24,15 +29,9 @@ export default function FormPage() {
         ],
     } as FormSchema;
 
-    const {
-        state,
-        model,
-        updateModelValue,
-        handleSubmit
-    }
-        = useFormGen({
+    const { state, model, updateModelValue, handleSubmit } = useFormGen({
         schema: schema,
-        model: {first_name: "", last_name: ""}
+        model: initialModel
     });
 
     // const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -43,18 +42,26 @@ export default function FormPage() {
     const logSubmit = async (model: FormModel) => {
         console.log(model);
     }
+    
     // TODO: Challenge #2: Browser console is throwing a warning. Fix it.
     return (
-        <>
-            <h1>Form Page</h1>
-            <form onSubmit={handleSubmit(logSubmit)}>
-                <FormGenerator schema={schema} state={state} model={model} updateModelValue={updateModelValue}/>
-                <Button type={"submit"}>Submit</Button>
-            </form>
-            <hr />
-            <form action={logout}>
-            <button type={"submit"}>Logout</button>
-            </form>
-        </>
+        <div className="flex flex-col gap-5 p-5 bg-zinc-100 w-full h-dvh">
+            <div className="flex justify-between items-baseline">
+                <h1 className='font-bold text-2xl'>Form Page</h1>
+                <form action={logout}>
+                    <button type="submit" className="mt-3 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-xl focus:outline-none focus:shadow-outline">Logout</button>
+                </form>
+            </div>
+
+            <div className='w-full bg-white rounded p-5 md:w-6/12'>
+                <form onSubmit={handleSubmit(logSubmit)}>
+                    <FormGenerator schema={schema} state={state} model={model} updateModelValue={updateModelValue}/>
+
+                    <div className="flex justify-end">
+                        <Button className="mt-5 rounded-xl" variant="default" type="submit">Submit</Button>
+                    </div>
+                </form>
+            </div>
+        </div>
     )
 }

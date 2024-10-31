@@ -53,16 +53,60 @@ export function useFormGen(props: UseFormGeneratorProps): UseFormGeneratorReturn
         }
     }, [model, state.defaultValue, state.isDirty]);
 
-    const updateModelValue = useCallback((path: ModelPath, definition: FieldDefinition, value: PrimitiveValues) => {
+    const validateField = useCallback((field: FieldDefinition, value: PrimitiveValues) => {
+        const errors: string[] = [];
+        
+        field.rules?.forEach(rule => {
+            switch (rule.name) {
+                case "required": 
+                    if (!value || value.toString().trim() === '') errors.push(`${field.label?.text || "Field"} is mandatory, can't be empty.`);
+                    break;
+                case "minLength": 
+                    if (typeof value === "string" && value.length < (rule.value as number)) errors.push(`${field.label?.text || "Field"} must be at least ${rule.value} characters.`);
+                    break;
+                case "pattern": 
+                    if (typeof value === "string" && !(rule.value as RegExp).test(value)) errors.push(`${field.label?.text || "Field"} is invalid.`);
+                    break;
+                case "custom":
+                    if (typeof rule.validate === "function") {
+                        const customError = rule.validate(value);
+                        if (customError) errors.push(customError);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        });
+    
+        return errors;
+    }, []);    
+
+    const updateErrors = useCallback((path: ModelPath, errorMessages: string[]) => {
+        setState((prev) => {
+            const newErrors = { ...prev.errors };
+            if (errorMessages.length) {
+                newErrors[path] = errorMessages;
+            } else {
+                delete newErrors[path];
+            }
+            return { ...prev, errors: newErrors };
+        });
+    }, []);
+
+    const updateModelValue = useCallback((path: ModelPath, definition: FieldDefinition, value: PrimitiveValues, onBlur = false) => {
         setModel((prev) => {
             const newModel = cloneObject(prev);
             set(newModel, path, value);
             return newModel;
         });
-    }, [model, state])
+
+        if (onBlur) {
+            const errors = validateField(definition, value);
+            updateErrors(path, errors);
+        }
+    },[model, state, validateField, updateErrors]);
 
     const handleValidFlow = async(onValid: SubmitHandler, modelForSubmit: FormModel) => {
-
         try {
             await onValid(modelForSubmit);
             setState((prev) => {

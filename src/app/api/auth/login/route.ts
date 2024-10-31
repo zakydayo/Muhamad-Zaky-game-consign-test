@@ -2,8 +2,8 @@ export const dynamic = 'force-dynamic' // defaults to auto
 import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
-    const {email, password} = await request.json();
-    if (!email || !password) {
+    const {username, password} = await request.json();
+    if (!username || !password) {
         return Response.json({ success: false, error: 'Email and password are required' }, { status: 400 });
     }
     cookies().set({

@@ -58,7 +58,7 @@ export type FormLabelProps = {
     children: React.ReactNode
 }
 
-export  type BaseFieldProps = {
+export type BaseFieldProps = {
     field: FieldDefinition;
     value: PrimitiveValues;
     path: ModelPath;
@@ -67,7 +67,6 @@ export  type BaseFieldProps = {
 
 export interface TextFieldProps extends BaseFieldProps{
 }
-
 
 export type UseFormGeneratorState = {
     isDirty: boolean;
